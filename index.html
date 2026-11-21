@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" class="dark scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Girish Lade — UI/UX Designer, Full-Stack Developer & LadeStack Founder</title>
+    <meta
+      name="description"
+      content="Explore the portfolio of Girish Balaso Lade, a UI/UX designer and full-stack developer creating privacy-conscious developer tools, web apps, and LadeStack products."
+    />
+    <meta
+      property="og:title"
+      content="Girish Lade — UI/UX Designer, Full-Stack Developer & LadeStack Founder"
+    />
+    <meta
+      property="og:description"
+      content="Explore the portfolio of Girish Balaso Lade, a UI/UX designer and full-stack developer creating privacy-conscious developer tools, web apps, and LadeStack products."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('girish-portfolio-theme');
+          var isDark = stored ? stored === 'dark' : true;
+          document.documentElement.classList.toggle('dark', isDark);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-[#FAFAFA] text-[#09090B] antialiased selection:bg-[#2563EB]/20 selection:text-[#1D4ED8] dark:bg-[#050505] dark:text-[#F4F4F5] dark:selection:bg-[#3B82F6]/30 dark:selection:text-[#DBEAFE]">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
