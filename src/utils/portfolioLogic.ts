@@ -117,3 +117,19 @@ export function buildProjectSharePayload(
     url: project.url || project.repoUrl || fallbackUrl,
   };
 }
+
+export function getProjectTechStack(project: Pick<ProjectItem, 'stack'>): string[] {
+  const seen = new Set<string>();
+  const normalized: string[] = [];
+
+  for (const raw of project.stack) {
+    const item = raw.trim();
+    const key = item.toLowerCase();
+    if (item && !seen.has(key)) {
+      seen.add(key);
+      normalized.push(item);
+    }
+  }
+
+  return normalized;
+}

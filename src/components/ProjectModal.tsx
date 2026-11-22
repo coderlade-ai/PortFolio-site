@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Share2, X } from 'lucide-react';
 import type { ProjectItem } from '../data/portfolioData';
 import {
   buildProjectSharePayload,
   calculateProjectReadingTime,
+  getProjectTechStack,
 } from '../utils/portfolioLogic';
 import { ProjectGraphic } from './ui/ProjectGraphic';
 
@@ -18,9 +19,15 @@ type ShareFeedback = 'idle' | 'shared' | 'copied' | 'unavailable';
 
 export function ProjectModal({ project, onClose, onNavigate }: ProjectModalProps) {
   const [shareFeedback, setShareFeedback] = useState<ShareFeedback>('idle');
+  const prefersReducedMotion = useReducedMotion();
 
   const readingTime = useMemo(
     () => (project ? calculateProjectReadingTime(project) : null),
+    [project]
+  );
+
+  const techStack = useMemo(
+    () => (project ? getProjectTechStack(project) : []),
     [project]
   );
 
@@ -112,17 +119,32 @@ export function ProjectModal({ project, onClose, onNavigate }: ProjectModalProps
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: prefersReducedMotion ? 0.01 : 0.22, ease: 'easeOut' }}
             onClick={onClose}
             className="fixed inset-0 bg-[#05070D]/80 backdrop-blur-sm"
           />
 
           <motion.div
-            initial={{ opacity: 0, y: 18, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.98 }}
-            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-            className="relative z-10 max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-slate-200/90 bg-[#FCFDFE] shadow-[0_32px_80px_-20px_rgba(15,23,42,0.35)] dark:border-slate-800/90 dark:bg-[#0A0C12] dark:shadow-[0_32px_90px_-20px_rgba(0,0,0,0.85)]"
+            initial={
+              prefersReducedMotion
+                ? { opacity: 0 }
+                : { opacity: 0, scale: 0.93, y: 18 }
+            }
+            animate={
+              prefersReducedMotion
+                ? { opacity: 1 }
+                : { opacity: 1, scale: 1, y: 0 }
+            }
+            exit={
+              prefersReducedMotion
+                ? { opacity: 0 }
+                : { opacity: 0, scale: 0.96, y: 10 }
+            }
+            transition={{
+              duration: prefersReducedMotion ? 0.01 : 0.28,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="relative z-10 max-h-[90vh] w-full max-w-3xl origin-center overflow-y-auto rounded-2xl border border-slate-200/90 bg-[#FCFDFE] shadow-[0_32px_80px_-20px_rgba(15,23,42,0.35)] dark:border-slate-800/90 dark:bg-[#0A0C12] dark:shadow-[0_32px_90px_-20px_rgba(0,0,0,0.85)]"
           >
             {/* Subtle top sapphire ambient veil */}
             <div
@@ -235,15 +257,58 @@ export function ProjectModal({ project, onClose, onNavigate }: ProjectModalProps
                 </div>
               </div>
 
-              {/* Technical Stack & Verification Note */}
-              <div className="space-y-4 border-t border-slate-200/90 pt-6 dark:border-slate-800/90">
+              {/* Tech Stack Tag List & Verification Note */}
+              <div className="space-y-5 border-t border-slate-200/90 pt-6 dark:border-slate-800/90">
                 <div>
-                  <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                    Known Stack & Architecture
-                  </h3>
-                  <p className="mt-2 font-mono text-xs leading-relaxed text-slate-900 dark:text-slate-200">
-                    {project.stack.join(' · ')}
-                  </p>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <h3 className="font-display text-sm font-semibold tracking-tight text-slate-950 dark:text-slate-100">
+                      Tech Stack
+                    </h3>
+                    <span className="font-mono text-xs tabular-nums text-slate-500 dark:text-slate-400">
+                      {techStack.length} {techStack.length === 1 ? 'technology' : 'technologies'}
+                    </span>
+                  </div>
+
+                  <motion.ul
+                    key={project.id}
+                    aria-label="Tech stack"
+                    data-testid="modal-tech-stack"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: {},
+                      visible: {
+                        transition: {
+                          staggerChildren: prefersReducedMotion ? 0 : 0.03,
+                          delayChildren: prefersReducedMotion ? 0 : 0.06,
+                        },
+                      },
+                    }}
+                    className="mt-3 flex flex-wrap gap-2"
+                  >
+                    {techStack.map((tech) => (
+                      <motion.li
+                        key={tech}
+                        variants={{
+                          hidden: prefersReducedMotion
+                            ? { opacity: 1 }
+                            : { opacity: 0, y: 6, scale: 0.96 },
+                          visible: {
+                            opacity: 1,
+                            y: 0,
+                            scale: 1,
+                            transition: {
+                              duration: prefersReducedMotion ? 0.01 : 0.2,
+                              ease: [0.16, 1, 0.3, 1],
+                            },
+                          },
+                        }}
+                        className="rounded-md border border-slate-200/90 bg-slate-50 px-2.5 py-1 font-mono text-xs font-medium whitespace-nowrap text-slate-800 dark:border-slate-800 dark:bg-[#111521] dark:text-slate-200"
+                      >
+                        {tech}
+                      </motion.li>
+                    ))}
+                  </motion.ul>
                 </div>
 
                 {project.note && (

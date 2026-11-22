@@ -7,6 +7,7 @@ import {
   countProjectsByCategory,
   filterProjects,
   getNextProjectSlug,
+  getProjectTechStack,
 } from './portfolioLogic';
 
 test('filterProjects filters by category and search text accurately', () => {
@@ -83,6 +84,18 @@ test('buildProjectSharePayload builds title and prioritizes product URL with fal
     'https://ladestack.in/'
   );
   assert.equal(fallbackPayload.url, 'https://github.com/girishlade111/sample');
+});
+
+test('getProjectTechStack trims and deduplicates tech stack tags across all projects', () => {
+  const deduped = getProjectTechStack({
+    stack: [' React ', 'TypeScript', 'react', '', '  Vite'],
+  });
+  assert.deepEqual(deduped, ['React', 'TypeScript', 'Vite']);
+
+  for (const project of PROJECTS) {
+    const tags = getProjectTechStack(project);
+    assert.ok(tags.length >= 2, `${project.name} should expose at least 2 tech stack tags`);
+  }
 });
 
 test('portfolio dataset strictly excludes private appendix data and honors verification rules', () => {
