@@ -67,3 +67,53 @@ export function getNextProjectSlug(
   const nextIndex = (idx + offset + projects.length) % projects.length;
   return projects[nextIndex].slug;
 }
+
+export interface ReadingTimeEstimate {
+  wordCount: number;
+  minutes: number;
+  label: string;
+}
+
+export function calculateProjectReadingTime(
+  project: Pick<ProjectItem, 'tagline' | 'overview' | 'useCases' | 'note'>,
+  wordsPerMinute = 200
+): ReadingTimeEstimate {
+  const safeWpm = wordsPerMinute > 0 ? wordsPerMinute : 200;
+  const combinedText = [
+    project.tagline,
+    project.overview,
+    ...project.useCases.flatMap((uc) => [uc.title, uc.description]),
+    project.note ?? '',
+  ].join(' ');
+
+  const words = combinedText
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const wordCount = words.length;
+  const minutes = Math.max(1, Math.ceil(wordCount / safeWpm));
+
+  return {
+    wordCount,
+    minutes,
+    label: `${minutes} min read`,
+  };
+}
+
+export interface ProjectSharePayload {
+  title: string;
+  text: string;
+  url: string;
+}
+
+export function buildProjectSharePayload(
+  project: Pick<ProjectItem, 'name' | 'tagline' | 'url' | 'repoUrl'>,
+  fallbackUrl = 'https://ladestack.in/'
+): ProjectSharePayload {
+  return {
+    title: `${project.name} — Girish Lade | LadeStack`,
+    text: project.tagline,
+    url: project.url || project.repoUrl || fallbackUrl,
+  };
+}
